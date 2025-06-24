@@ -25,7 +25,7 @@ pub fn identify_from_bytes(bytes: &[u8]) -> Option<FileInfo> {
     // Fallback to infer if no custom magic matched
     if let Some(kind) = infer::get(bytes) {
         return Some(FileInfo {
-            description: format!("{}", kind.mime_type()),
+            description: kind.mime_type().to_string(),
         });
     }
     None
