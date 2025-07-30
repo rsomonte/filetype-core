@@ -11,7 +11,7 @@
 
 Both the CLI and Wasm frontends integrate `ufile-core` as a direct Git dependency, ensuring they always use the exact same, version-controlled identification logic.
 
-![Editor _ Mermaid Chart-2025-06-24-022454](https://github.com/user-attachments/assets/06bfeb27-a110-4631-bbaa-7f042f2e3ae3)
+<img width="3840" height="2233" alt="Untitled diagram _ Mermaid Chart-2025-07-30-011157" src="https://github.com/user-attachments/assets/f01e13cc-7a9f-464b-b13f-322164022cac" />
 
 ## Usage (Core Library)
 
