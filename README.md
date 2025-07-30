@@ -1,6 +1,17 @@
-# ufile-core: Universal File Type Identification
+# ufile-core
 
-`ufile-core` is a high-performance, platform-agnostic Rust library designed to accurately identify file types based on their unique binary signatures, known as "magic numbers". It provides a robust and centralized solution for applications requiring reliable file detection. This project draws inspiration from the classic Unix `file` command.
+A high-performance, platform-agnostic Rust library for file type identification based on magic numbers and binary signatures. This is the core library that powers various file identification frontends.
+
+## Overview
+
+`ufile-core` provides reliable file type detection through:
+
+- **Magic number analysis**: Custom database of file signatures for accurate detection
+- **Multi-file processing**: Efficiently process multiple files and directories
+- **Fallback detection**: Integration with the `infer` crate for additional coverage
+- **Cross-platform**: Works on all platforms supported by Rust
+
+This library is designed to be integrated into CLI tools, web applications (via WASM), desktop applications, and other software requiring file type identification.
 
 ## Where I've Used It
 
@@ -13,21 +24,74 @@ Both the CLI and Wasm frontends integrate `ufile-core` as a direct Git dependenc
 
 <img width="3840" height="2233" alt="Untitled diagram _ Mermaid Chart-2025-07-30-011157" src="https://github.com/user-attachments/assets/f01e13cc-7a9f-464b-b13f-322164022cac" />
 
-## Usage (Core Library)
+## Installation
 
-To integrate `ufile-core` into your Rust project, add it as a dependency:
+Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
 ufile-core = { git = "https://github.com/rsomonte/ufile-core.git", branch = "main" }
 ```
 
-Then, you can use the `identify_from_bytes` function:
+
+## Data Types
+
+### FileInfo
+
+The main result type containing file information:
 
 ```rust
-pub fn identify_from_bytes(bytes: &[u8]) -> Option<FileInfo> { /* ... */ }
+pub struct FileInfo {
+    /// The path to the file
+    pub path: PathBuf,
+    /// Human-readable description of the file type
+    pub description: String,
+    /// Whether this entry represents a directory
+    pub is_directory: bool,
+    /// File size in bytes (None for directories)
+    pub size: Option<u64>,
+}
 ```
 
-The `FileInfo` struct provides a human-readable `description` of the detected file type.
+### FileProcessingError
 
-`ufile-core` empowers developers to easily integrate powerful and consistent file type identification across various platforms and applications.
+Comprehensive error handling for file operations:
+
+```rust
+pub enum FileProcessingError {
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+    #[error("Path does not exist: {0}")]
+    PathNotFound(PathBuf),
+    #[error("Directory traversal error: {0}")]
+    WalkDir(#[from] walkdir::Error),
+}
+```
+
+
+## Performance Considerations
+
+- **Memory efficient**: Processes files without loading entire contents into memory when possible
+- **Lazy evaluation**: Only reads file data when necessary for identification
+- **Batch processing**: Efficiently handles multiple files with minimal system calls
+- **Early detection**: Magic number matching stops at first successful identification
+
+## Simple Usage
+
+```rust
+use ufile_core::*;
+
+// Identify a single file from bytes
+let bytes = std::fs::read("myfile.png")?;
+let info = identify_from_bytes(&bytes);
+println!("Type: {}", info.map_or("Unknown", |i| &i.description));
+
+// Identify multiple files from bytes
+let files: Vec<Vec<u8>> = vec![ /* ...file contents... */ ];
+let results = identify_many_bytes(files.iter().map(|v| v.as_slice()));
+for info in results {
+    println!("Type: {}", info.description);
+}
+```
+
+
