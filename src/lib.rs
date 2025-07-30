@@ -1,4 +1,4 @@
-//! filetype-core: Pure file type identification logic for use in CLI and Wasm frontends.
+//! ufile-core: Pure file type identification logic for use in CLI and Wasm frontends.
 
 mod magicnums;
 pub use magicnums::get_magic_numbers;
